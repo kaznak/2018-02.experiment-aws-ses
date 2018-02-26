@@ -1,0 +1,24 @@
+# -*- mode: gitignore; -*-
+
+### gitignore from https://github.com/github/gitignore
+
+### * Editors
+### ** Emacs 
+*~
+\#*\#
+.\#*
+
+### ** Vi
+*.swp
+
+### * Vagrant
+# .vagrant
+
+### * Terraform
+.terraform
+*.tfstate
+*.tfstate.backup
+
+### * Python
+*.pyc
+
