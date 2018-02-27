@@ -39,7 +39,7 @@ resource "aws_ses_receipt_rule" "admin_mail" {
 
   s3_action {
     bucket_name       = "${aws_s3_bucket.default.bucket}"
-    object_key_prefix = "${var.Admin_mail_addr}"
+    object_key_prefix = "admin_mail"
     position          = 1
   }
 }
@@ -58,7 +58,30 @@ resource "aws_ses_receipt_rule" "working_mail" {
 
   s3_action {
     bucket_name       = "${aws_s3_bucket.default.bucket}"
-    object_key_prefix = "${var.Working_mail_addr}"
+    object_key_prefix = "working_mail"
     position          = 1
   }
+}
+
+# # https://www.terraform.io/docs/providers/aws/r/s3_bucket_policy.html
+resource "aws_s3_bucket_policy" "default" {
+  provider = "aws.tokyo"
+
+  bucket = "${aws_s3_bucket.default.id}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ses.amazonaws.com"
+      },
+      "Action": "s3:PutObject",
+      "Resource": "arn:aws:s3:::${aws_s3_bucket.default.bucket}/*"
+    } 
+  ]
+}
+POLICY
 }
