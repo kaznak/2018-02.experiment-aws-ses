@@ -7,6 +7,9 @@
 nogit_*
 *_nogit
 
+### ** Project
+pkg/*
+
 ### * Editors
 ### ** Emacs 
 *~
