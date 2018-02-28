@@ -3,6 +3,7 @@ import boto3
 import base64
 import email
 import urllib.parse
+import datetime
 
 print('Loading function')
 
@@ -16,24 +17,31 @@ def lambda_handler(event, context):
         response = s3.meta.client.get_object(Bucket=bucket, Key=key)
         email_body = response['Body'].read().decode('utf-8')
         email_object = email.message_from_string(email_body)
+
+        partcount = 0
+        nowstr = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        print([partcount, nowstr])
         
         for part in email_object.walk():
-            # ContentTypeがmultipartの場合は実際のコンテンツはさらに中のpartにあるので読み飛ばす
             if part.get_content_maintype() == 'multipart':
+                # Actual contents is in other part.
                 continue
-            # ファイル名の取得
-            filename = part.get_filename()
-            print(filename)
-            # ファイル名がなければ飛ばす
-            if not filename:
-                continue
-            else:
-                # メールフォルダ内のfileディレクトリに添付ファイルを保存する
-                attach_data = part.get_payload(decode=True)
-                bucket_source = s3.Bucket(bucket)
-                obj = bucket_source.put_object(ACL='private', Body=attach_data,
-                                               Key='file' + "/" + filename, ContentType='text/plain')
-                
+
+            partcount += 1
+
+            ifname = part.get_filename()
+            if not ifname:
+                ifname = ""
+            
+            ofname = '.'.join([nowstr,str(partcount),ifname])
+
+            print([ifname, ofname])
+            
+            attach_data = part.get_payload(decode=True)
+            bucket_source = s3.Bucket(bucket)
+            obj = bucket_source.put_object(ACL='private', Body=attach_data,
+                                           Key='file' + "/" + ofname, ContentType='text/plain')
+
         return 'end'
     except Exception as e:
         print(e)
