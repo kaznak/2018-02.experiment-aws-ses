@@ -1,8 +1,8 @@
 # S3 -*- Mode: HCL; -*-
 
 variable "bucket-suffix" {
-  type = "string"
-  default = "80enw6ogha"	# tokyo
+  type    = "string"
+  default = "80enw6ogha" # tokyo
 }
 
 # # https://www.terraform.io/docs/providers/aws/r/s3_bucket.html
@@ -24,7 +24,8 @@ resource "aws_s3_bucket_policy" "default" {
   provider = "aws.tokyo"
 
   bucket = "${aws_s3_bucket.default.id}"
-  policy =<<POLICY
+
+  policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Statement": [
