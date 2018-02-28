@@ -53,9 +53,9 @@ EOF
 
 # # https://www.terraform.io/docs/providers/aws/r/iam_role_policy.html
 resource "aws_iam_role_policy" "lambda_s3" {
-  provider   = "aws.tokyo"
-  name = "lambda_s3"
-  role = "${aws_iam_role.lambda_s3.id}"
+  provider = "aws.tokyo"
+  name     = "lambda_s3"
+  role     = "${aws_iam_role.lambda_s3.id}"
 
   policy = <<EOF
 {
