@@ -3,7 +3,8 @@ import boto3
 import base64
 import email
 import urllib.parse
-import datetime
+from datetime import datetime
+from pytz import timezone
 
 print('Loading function')
 
@@ -11,18 +12,22 @@ s3 = boto3.resource('s3')
 
 def lambda_handler(event, context):
     # Get the object from the event and show its content type
+    print(event)
+    print(context)
+    
     bucket = event['Records'][0]['s3']['bucket']['name']
     key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'], encoding='utf-8')
     try:
         response = s3.meta.client.get_object(Bucket=bucket, Key=key)
-        email_body = response['Body'].read().decode('utf-8')
-        email_object = email.message_from_string(email_body)
+        string_mail = response['Body'].read().decode('utf-8')
+        email_message = email.message_from_string(string_mail)
 
         partcount = 0
-        nowstr = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        now = datetime.now(timezone('Asia/Tokyo'))
+        nowstr = now.strftime("%Y-%m-%dT%H%M%S%Z")
         print([partcount, nowstr])
         
-        for part in email_object.walk():
+        for part in email_message.walk():
             if part.get_content_maintype() == 'multipart':
                 # Actual contents is in other part.
                 continue
