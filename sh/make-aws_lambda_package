@@ -3,7 +3,7 @@
 # set -vx
 set -Cue
 
-based=$(dirname $0)/..
+based=$(readlink -f $(dirname $0)/..)
 pname=$(basename $0)
 stime=$(date +%Y%m%d%H%M%S%Z)
 
@@ -32,19 +32,24 @@ ls -d $lambdad/*	|
     done		|
     while read d ; do
 	name=$(basename $d)
-	tmppkgd=$tmp/$name
-	
-	mkdir -p $tmppkgd
-	
-	find $d -type f -name '*.py'	|
-	    xargs -I% cp -p % $tmppkgd
+	pkgtmp=$tmp/$name
+	mkdir -p $pkgtmp
+
+	# !!Assume!! virtualenv python directory
+	echo $d/*.py $d/lib/python3.6/site-packages/*	|
+	    {
+		xargs ls -d
+		true
+	    }		|
+	    xargs cp -rpt $pkgtmp
 
 	{
-	    pushd $tmppkgd
-	    zip $name.zip *.py
+	    pushd $pkgtmp
+	    find . -type f	|
+		xargs zip $pkgd/$name.zip.new
 	    popd
 	}
-	mv $tmppkgd/$name.zip $pkgd
+	mv $pkgd/$name.zip{.new,}
     done 
 
 ################################################################
