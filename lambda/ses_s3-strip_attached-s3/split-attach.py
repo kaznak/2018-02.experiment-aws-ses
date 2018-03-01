@@ -29,9 +29,7 @@ def lambda_handler(event, context):
 
             partcount += 1
 
-            ifname = part.get_filename()
-            if not ifname:
-                ifname = ""
+            ifname = part.get_filename(failobj="")
             
             ofname = '.'.join([nowstr,str(partcount),ifname])
 
