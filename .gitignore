@@ -23,7 +23,7 @@ pkg/*
 # .vagrant
 
 ### * Terraform
-.terraform
+.terraform*
 *.tfstate
 *.tfstate.backup
 
