@@ -9,13 +9,16 @@ from datetime import datetime
 from pytz import timezone
 
 import hashlib
+import re
 
 print('Loaded')
 
 tz = 'Asia/Tokyo'
 outpath = 'file/'
+extpat = '\w{1,16}$'
 
 s3 = boto3.resource('s3')
+extre = re.compile(extpat)
 
 def lambda_handler(event, context):
     # Get the object from the event and show its content type
@@ -46,8 +49,12 @@ def lambda_handler(event, context):
 
             ifname = part.get_filename(failobj="")
             ext = ifname.rsplit('.',1)[-1]
+            if not extre.match(ext):
+                # extension string check
+                print('Error unacceptable extension {} against {}. continue.'
+                      .format(ext, extpat))
+                continue
 
-            # TODO extension string must be checked
             payload = part.get_payload(decode=True)
             hash.update(payload)
 
