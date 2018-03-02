@@ -1,19 +1,21 @@
 
 import boto3
+
 import base64
 import email
 import urllib.parse
 
 from datetime import datetime
 from pytz import timezone
+
 import hashlib
-import os
 
-print('Function Loaded')
+print('Loaded')
 
-s3 = boto3.resource('s3')
 tz = 'Asia/Tokyo'
 outpath = 'file/'
+
+s3 = boto3.resource('s3')
 
 def lambda_handler(event, context):
     # Get the object from the event and show its content type
@@ -36,26 +38,26 @@ def lambda_handler(event, context):
 
         for part in email_message.walk():
             if part.get_content_maintype() != 'image':
-                # get only image file
+                # get only file calling oneself image
                 continue
 
             partcount += 1
             hash = hashlib.new('sha256')
 
             ifname = part.get_filename(failobj="")
-            payload = part.get_payload(decode=True)
+            ext = ifname.rsplit('.',1)[-1]
 
-            _, extension = os.path.splitext(ifname)
             # TODO extension string must be checked
+            payload = part.get_payload(decode=True)
             hash.update(payload)
 
-            okey = '.'.join([
-                outpath,
+            okey = outpath + '.'.join([
                 nowstr,
                 str(partcount),
                 hash.hexdigest(),
-                str(len(payload))
-            ]) + extension
+                str(len(payload)),
+                ext.lower()
+            ])
 
             print([ifname, okey])
             
